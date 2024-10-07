@@ -1,5 +1,5 @@
 import argparse
-import os
+from keygen import generate_key
 from Services.Crypter import Crypter
 
 parser = argparse.ArgumentParser(description="Ecnrypting and decrypting file")
@@ -11,8 +11,13 @@ args = parser.parse_args()
 
 key = args.key
 if not(args.key):
-    with open("key", "rb") as f:
-        key = f.read()
+    try:
+        with open("key", "rb") as f:
+            key = f.read()
+    except FileNotFoundError:
+        generate_key()
+        with open("key", "rb") as f:
+            key = f.read()
 
 crypter = Crypter(key)
 if args.action == "encrypt":
@@ -23,7 +28,7 @@ if args.action == "encrypt":
 elif args.action == "decrypt":
     try:
         crypter.decrypt(args.input, args.output)
-    except FileNotFoundError:
+    except Exception:
         print("Invalid file location!")
 else:
     print("Invalid action!")    
